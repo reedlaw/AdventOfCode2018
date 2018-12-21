@@ -1,7 +1,7 @@
 paths = Hash(Array(Int32), Char).new
 y = 0
 max_x = 0
-File.read("13.in").each_line do |l|
+File.read("13part2.test").each_line do |l|
   x = 0
   l.each_char do |c|
     max_x = x if x > max_x
@@ -25,9 +25,9 @@ max_y.times do |y|
   end
 end
 
-crash = false
+last_one = false
 i = 0
-while !crash
+while !last_one
   i += 1
 
   new_carts = Hash(Array(Int32), Cart).new
@@ -37,20 +37,29 @@ while !crash
       if carts.has_key?([x, y])
         cart = carts[[x, y]]
         if new_carts.has_key?([cart.x, cart.y])
-          crash = true
-          new_carts[[x, y]] = cart
-          p "second #{i} crash at #{cart.x}, #{cart.y}"
+          new_carts.delete([cart.x, cart.y])
+        else
+          cart.traverse(paths[[x, y]])
+          if new_carts.has_key?([cart.x, cart.y])
+            new_carts.delete([cart.x, cart.y])
+          else
+            new_carts[[cart.x, cart.y]] = cart
+          end
         end
-        cart.traverse(paths[[x, y]])
-        new_carts[[cart.x, cart.y]] = cart
       end
     end
   end
-
+  # show(carts, paths, max_x, max_y)
+  if new_carts.size == 1
+    cart = new_carts[new_carts.keys[0]]
+    p "last remaining cart is at #{cart.x}, #{cart.y}"
+    last_one = true
+  end
+  p new_carts.size
   carts = new_carts
 end
 
-def show(carts)
+def show(carts, paths, max_x, max_y)
   print "   "
   max_x.times do |x|
     print x / 100
